@@ -1,0 +1,37 @@
+{
+    "name": "art-fatal/doctrine-enum-bundle",
+    "description": "Symfony bundle for automatic registration of PHP BackedEnum as Doctrine DBAL custom types with MySQL ENUM columns",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "keywords": [
+        "symfony",
+        "doctrine",
+        "enum",
+        "dbal",
+        "mysql",
+        "backed-enum",
+        "php-enum"
+    ],
+    "authors": [
+        {
+            "name": "Art Fatal"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "symfony/dependency-injection": "^6.0|^7.0",
+        "symfony/http-kernel": "^6.0|^7.0",
+        "doctrine/dbal": "^3.0|^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ArtFatal\\DoctrineEnumBundle\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        }
+    },
+    "minimum-stability": "stable"
+}

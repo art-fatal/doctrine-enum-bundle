@@ -1,0 +1,153 @@
+# Doctrine Enum Bundle
+
+A Symfony bundle that provides automatic registration of PHP 8.1+ BackedEnum as Doctrine DBAL custom types with MySQL ENUM columns.
+
+## Features
+
+- **Zero Configuration**: Auto-registers all enum types with Doctrine
+- **Type-Safe**: Uses native PHP BackedEnum
+- **MySQL ENUM Support**: Generates proper MySQL ENUM columns
+- **Easy to Use**: Just extend `EnumType` and you're done
+- **Symfony 6/7 Compatible**: Works with modern Symfony versions
+
+## Installation
+
+```bash
+composer require art-fatal/doctrine-enum-bundle
+```
+
+### Manual Bundle Registration (Symfony without Flex)
+
+If you're not using Symfony Flex, add the bundle to `config/bundles.php`:
+
+```php
+return [
+    // ...
+    ArtFatal\DoctrineEnumBundle\DoctrineEnumBundle::class => ['all' => true],
+];
+```
+
+## Usage
+
+### 1. Create a PHP Enum
+
+```php
+// src/Constant/Enum/User/Status.php
+namespace App\Constant\Enum\User;
+
+enum Status: string
+{
+    case ACTIVE = 'active';
+    case INACTIVE = 'inactive';
+    case BANNED = 'banned';
+
+    const ALL = [
+        self::ACTIVE,
+        self::INACTIVE,
+        self::BANNED,
+    ];
+}
+```
+
+### 2. Create a Doctrine Enum Type
+
+```php
+// src/Type/Enum/UserStatusEnumType.php
+namespace App\Type\Enum;
+
+use App\Constant\Enum\User\Status;
+use ArtFatal\DoctrineEnumBundle\Type\EnumType;
+
+class UserStatusEnumType extends EnumType
+{
+    public const NAME = 'user_status_type';
+
+    public static function getEnumsClass(): string
+    {
+        return Status::class;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+}
+```
+
+### 3. Use in Your Entity
+
+```php
+// src/Entity/User.php
+namespace App\Entity;
+
+use App\Constant\Enum\User\Status;
+use App\Type\Enum\UserStatusEnumType;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[ORM\Entity]
+class User
+{
+    #[ORM\Column(type: UserStatusEnumType::NAME, options: ['default' => Status::ACTIVE->value])]
+    #[Assert\NotNull]
+    #[Assert\Choice(choices: Status::ALL)]
+    private ?Status $status = Status::ACTIVE;
+
+    public function getStatus(): ?Status
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?Status $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+}
+```
+
+### 4. Generate Migration
+
+```bash
+php bin/console doctrine:migrations:diff
+php bin/console doctrine:migrations:migrate
+```
+
+The migration will create a proper MySQL ENUM column:
+
+```sql
+ALTER TABLE user ADD status ENUM('active', 'inactive', 'banned') DEFAULT 'active' NOT NULL;
+```
+
+## How It Works
+
+1. **Extension**: The `DoctrineEnumExtension` auto-tags all classes extending `EnumType`
+2. **Compiler Pass**: The `RegisterEnumTypesPass` registers all tagged enum types with Doctrine DBAL
+3. **Type Conversion**: `EnumType` handles conversion between PHP BackedEnum and database string values
+4. **SQL Generation**: Creates proper MySQL ENUM columns with all enum cases
+
+## Advantages
+
+- **No Manual Configuration**: No need to modify `services.yaml` or `Kernel.php`
+- **Reusable**: Just install the bundle in any Symfony project
+- **Type Safety**: Full IDE autocomplete and type checking with PHP enums
+- **Database Constraints**: MySQL ENUM provides database-level validation
+- **Clean Code**: Separation between enum definition, type definition, and entity usage
+
+## Requirements
+
+- PHP >= 8.1
+- Symfony 6.x or 7.x
+- Doctrine DBAL 3.x or 4.x
+
+## License
+
+MIT License. See [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+If you encounter any issues, please open an issue on the GitHub repository.
