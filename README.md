@@ -5,6 +5,7 @@ A Symfony bundle that provides automatic registration of PHP 8.1+ BackedEnum as 
 ## Features
 
 - **Zero Configuration**: Auto-registers all enum types with Doctrine
+- **Code Generator**: Interactive `make:enum` command to generate enums and types
 - **Type-Safe**: Uses native PHP BackedEnum
 - **MySQL ENUM Support**: Generates proper MySQL ENUM columns
 - **Easy to Use**: Just extend `EnumType` and you're done
@@ -103,7 +104,37 @@ ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday
 
 ## Custom Enums
 
-You can also create your own custom enums:
+You can create your own custom enums in two ways:
+
+### Quick Way: Using the Generator Command
+
+The bundle includes a `make:enum` command that generates both the enum and type files interactively:
+
+```bash
+php bin/console make:enum
+```
+
+The command will ask you:
+1. **Enum name** (e.g., `UserStatus`, `OrderState`)
+2. **Enum cases** in format `NAME=value` (e.g., `ACTIVE=active`, `PENDING=pending`)
+3. **Namespaces** for enum and type (defaults: `App\Enum` and `App\Type`)
+
+**Example session:**
+```
+Enum name: UserStatus
+Case #1: ACTIVE=active
+Case #2: INACTIVE=inactive
+Case #3: BANNED=banned
+Case #4: [press enter to finish]
+```
+
+This will create:
+- `src/Enum/UserStatus.php` - The enum class
+- `src/Type/UserStatusEnumType.php` - The Doctrine type
+
+### Manual Way: Create Files Yourself
+
+If you prefer manual creation:
 
 ### 1. Create a PHP Enum
 

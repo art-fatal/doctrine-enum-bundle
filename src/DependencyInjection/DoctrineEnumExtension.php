@@ -2,8 +2,10 @@
 
 namespace ArtFatal\DoctrineEnumBundle\DependencyInjection;
 
+use ArtFatal\DoctrineEnumBundle\Command\MakeEnumCommand;
 use ArtFatal\DoctrineEnumBundle\Type\EnumType;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
 /**
@@ -19,5 +21,11 @@ class DoctrineEnumExtension extends Extension
         // Auto-tag all classes extending EnumType
         $container->registerForAutoconfiguration(EnumType::class)
             ->addTag('doctrine_enum_bundle.enum_type');
+
+        // Register the make:enum command
+        $commandDefinition = new Definition(MakeEnumCommand::class);
+        $commandDefinition->setArgument('$projectDir', '%kernel.project_dir%');
+        $commandDefinition->addTag('console.command');
+        $container->setDefinition(MakeEnumCommand::class, $commandDefinition);
     }
 }
