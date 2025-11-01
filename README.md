@@ -126,6 +126,47 @@ ALTER TABLE user ADD status ENUM('active', 'inactive', 'banned') DEFAULT 'active
 3. **Type Conversion**: `EnumType` handles conversion between PHP BackedEnum and database string values
 4. **SQL Generation**: Creates proper MySQL ENUM columns with all enum cases
 
+## Examples
+
+Complete, working examples are available in the [`examples/`](examples/) directory:
+
+- **DayOfWeek enum**: A real-world example with helper methods
+- **Complete entity**: Shows integration with Doctrine entities
+- **Step-by-step guide**: Detailed instructions for using the examples
+
+See [`examples/README.md`](examples/README.md) for detailed usage instructions.
+
+### Quick Example Preview
+
+The `DayOfWeek` example includes useful helper methods:
+
+```php
+enum DayOfWeek: string
+{
+    case MONDAY = 'monday';
+    // ... other days
+
+    public function isWeekend(): bool
+    {
+        return in_array($this, [self::SATURDAY, self::SUNDAY], true);
+    }
+
+    public function label(): string
+    {
+        return ucfirst($this->value); // "Monday"
+    }
+}
+```
+
+Used in an entity:
+
+```php
+$schedule->setDayOfWeek(DayOfWeek::SATURDAY);
+if ($schedule->getDayOfWeek()->isWeekend()) {
+    echo "Weekend activity!";
+}
+```
+
 ## Advantages
 
 - **No Manual Configuration**: No need to modify `services.yaml` or `Kernel.php`
