@@ -28,7 +28,7 @@ class RegisterEnumTypesPass implements CompilerPassInterface
         /** @var EnumType $enumType */
         foreach ($taggedEnums as $enumType => $definition) {
             // Register each enum type with Doctrine
-            $typesDefinition[$enumType::NAME] = ['class' => $enumType];
+            $typesDefinition[$enumType::getTypeName()] = ['class' => $enumType];
         }
 
         // Update the parameter with all enum types

@@ -128,7 +128,7 @@ class MakeEnumCommand extends Command
                 '#[ORM\Entity]',
                 'class YourEntity',
                 '{',
-                sprintf('    #[ORM\Column(type: %sEnumType::getTypeName())]', $enumName),
+                sprintf('    #[ORM\Column(type: %sEnumType::NAME)]', $enumName),
                 sprintf('    // or: #[ORM\Column(type: \'%s\')]', $typeName),
                 sprintf('    private ?%s $status = null;', $enumName),
                 '}',
@@ -192,12 +192,15 @@ class MakeEnumCommand extends Command
             mkdir($dir, 0755, true);
         }
 
+        $typeName = $this->convertToSnakeCase($enumName);
+
         $content = sprintf(
-            "<?php\n\nnamespace %s;\n\nuse %s\%s;\nuse ArtFatal\DoctrineEnumBundle\Type\EnumType;\n\nclass %sEnumType extends EnumType\n{\n    public static function getEnumsClass(): string\n    {\n        return %s::class;\n    }\n}\n",
+            "<?php\n\nnamespace %s;\n\nuse %s\%s;\nuse ArtFatal\DoctrineEnumBundle\Type\EnumType;\n\nclass %sEnumType extends EnumType\n{\n    public const NAME = '%s';\n\n    public static function getEnumsClass(): string\n    {\n        return %s::class;\n    }\n}\n",
             $typeNamespace,
             $enumNamespace,
             $enumName,
             $enumName,
+            $typeName,
             $enumName
         );
 

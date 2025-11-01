@@ -47,8 +47,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Schedule
 {
-    // You can use either the static method or string literal
-    #[ORM\Column(type: DayOfWeekEnumType::getTypeName())]
+    // You can use either the NAME constant or string literal
+    #[ORM\Column(type: DayOfWeekEnumType::NAME)]
     // OR
     // #[ORM\Column(type: 'day_of_week')]
     private ?DayOfWeek $dayOfWeek = null;
@@ -167,6 +167,8 @@ use ArtFatal\DoctrineEnumBundle\Type\EnumType;
 
 class UserStatusEnumType extends EnumType
 {
+    public const NAME = 'user_status';
+
     public static function getEnumsClass(): string
     {
         return Status::class;
@@ -174,18 +176,18 @@ class UserStatusEnumType extends EnumType
 }
 ```
 
-The type name is automatically generated from the class name in snake_case:
-- `UserStatusEnumType` → `user_status`
-- `DayOfWeekEnumType` → `day_of_week`
-- `OrderStateEnumType` → `order_state`
+**About the NAME constant:**
+- Define it to have a type-safe constant for attributes
+- The value should be in snake_case (e.g., `user_status`)
+- If not defined, the name is auto-generated from the class name
 
 ### 3. Use in Your Entity
 
 You can reference the type name in two ways:
 
-**Option 1: Using the static method (recommended for refactoring safety)**
+**Option 1: Using the NAME constant (recommended for refactoring safety)**
 ```php
-#[ORM\Column(type: UserStatusEnumType::getTypeName())]
+#[ORM\Column(type: UserStatusEnumType::NAME)]
 private ?Status $status = null;
 ```
 
@@ -195,7 +197,7 @@ private ?Status $status = null;
 private ?Status $status = null;
 ```
 
-Both are equivalent, but the static method provides IDE autocomplete and refactoring support.
+Both are equivalent, but the NAME constant provides IDE autocomplete and refactoring support.
 
 **Full example:**
 
