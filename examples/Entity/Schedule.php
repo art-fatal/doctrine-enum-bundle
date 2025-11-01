@@ -31,11 +31,15 @@ class Schedule
     /**
      * The day of the week for this schedule entry.
      *
+     * You can use either:
+     * - DayOfWeekEnumType::getTypeName() (type-safe, IDE autocomplete)
+     * - 'day_of_week' (string literal)
+     *
      * Database column will be:
      * ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
      */
     #[ORM\Column(
-        type: DayOfWeekEnumType::NAME,
+        type: DayOfWeekEnumType::getTypeName(),
         options: ['default' => DayOfWeek::MONDAY->value]
     )]
     #[Assert\NotNull]

@@ -8,6 +8,7 @@ A Symfony bundle that provides automatic registration of PHP 8.1+ BackedEnum as 
 - **Type-Safe**: Uses native PHP BackedEnum
 - **MySQL ENUM Support**: Generates proper MySQL ENUM columns
 - **Easy to Use**: Just extend `EnumType` and you're done
+- **Built-in Enums**: Includes ready-to-use enums like `DayOfWeek`
 - **Symfony 6/7 Compatible**: Works with modern Symfony versions
 
 ## Installation
@@ -27,7 +28,82 @@ return [
 ];
 ```
 
-## Usage
+## Built-in Enums
+
+The bundle includes production-ready enums that you can use directly without creating your own.
+
+### DayOfWeek
+
+A complete implementation of days of the week with helpful utility methods.
+
+**Usage in Entity:**
+
+```php
+use ArtFatal\DoctrineEnumBundle\Enum\DayOfWeek;
+use ArtFatal\DoctrineEnumBundle\Type\DayOfWeekEnumType;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class Schedule
+{
+    // You can use either the static method or string literal
+    #[ORM\Column(type: DayOfWeekEnumType::getTypeName())]
+    // OR
+    // #[ORM\Column(type: 'day_of_week')]
+    private ?DayOfWeek $dayOfWeek = null;
+
+    public function getDayOfWeek(): ?DayOfWeek
+    {
+        return $this->dayOfWeek;
+    }
+
+    public function setDayOfWeek(?DayOfWeek $dayOfWeek): self
+    {
+        $this->dayOfWeek = $dayOfWeek;
+        return $this;
+    }
+}
+```
+
+**Available Methods:**
+
+```php
+// Set a day
+$schedule->setDayOfWeek(DayOfWeek::MONDAY);
+
+// Check if it's a weekend
+if ($schedule->getDayOfWeek()->isWeekend()) {
+    echo "It's the weekend!"; // true for Saturday/Sunday
+}
+
+// Check if it's a weekday
+if ($schedule->getDayOfWeek()->isWeekday()) {
+    echo "It's a weekday!"; // true for Monday-Friday
+}
+
+// Get human-readable label
+echo $schedule->getDayOfWeek()->label(); // "Monday"
+
+// Get ISO-8601 day number
+$number = DayOfWeek::MONDAY->toIsoNumber(); // 1
+
+// Create from ISO-8601 day number
+$day = DayOfWeek::fromIsoNumber(7); // DayOfWeek::SUNDAY
+
+// Get all weekdays or weekend days
+$weekdays = DayOfWeek::weekDays(); // [MONDAY, TUESDAY, ..., FRIDAY]
+$weekend = DayOfWeek::weekendDays(); // [SATURDAY, SUNDAY]
+```
+
+**Database Column:**
+
+```sql
+ENUM('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
+```
+
+## Custom Enums
+
+You can also create your own custom enums:
 
 ### 1. Create a PHP Enum
 
@@ -60,21 +136,37 @@ use ArtFatal\DoctrineEnumBundle\Type\EnumType;
 
 class UserStatusEnumType extends EnumType
 {
-    public const NAME = 'user_status_type';
-
     public static function getEnumsClass(): string
     {
         return Status::class;
     }
-
-    public function getName(): string
-    {
-        return self::NAME;
-    }
 }
 ```
 
+The type name is automatically generated from the class name in snake_case:
+- `UserStatusEnumType` → `user_status`
+- `DayOfWeekEnumType` → `day_of_week`
+- `OrderStateEnumType` → `order_state`
+
 ### 3. Use in Your Entity
+
+You can reference the type name in two ways:
+
+**Option 1: Using the static method (recommended for refactoring safety)**
+```php
+#[ORM\Column(type: UserStatusEnumType::getTypeName())]
+private ?Status $status = null;
+```
+
+**Option 2: Using the string literal**
+```php
+#[ORM\Column(type: 'user_status')]
+private ?Status $status = null;
+```
+
+Both are equivalent, but the static method provides IDE autocomplete and refactoring support.
+
+**Full example:**
 
 ```php
 // src/Entity/User.php
@@ -88,7 +180,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 class User
 {
-    #[ORM\Column(type: UserStatusEnumType::NAME, options: ['default' => Status::ACTIVE->value])]
+    #[ORM\Column(type: 'user_status', options: ['default' => Status::ACTIVE->value])]
     #[Assert\NotNull]
     #[Assert\Choice(choices: Status::ALL)]
     private ?Status $status = Status::ACTIVE;

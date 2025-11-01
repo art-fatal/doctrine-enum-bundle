@@ -21,17 +21,14 @@ use ArtFatal\DoctrineEnumBundle\Type\EnumType;
  * This type handles conversion between the PHP DayOfWeek enum
  * and MySQL ENUM column with values ('monday', 'tuesday', ...).
  *
+ * The type name is automatically generated as "day_of_week" from the class name.
+ *
  * Usage in entity:
- * @ORM\Column(type: DayOfWeekEnumType::NAME)
+ * #[ORM\Column(type: 'day_of_week')]
  * private ?DayOfWeek $dayOfWeek = null;
  */
 class DayOfWeekEnumType extends EnumType
 {
-    /**
-     * The name used to reference this type in Doctrine annotations/attributes.
-     */
-    public const NAME = 'day_of_week_type';
-
     /**
      * Returns the fully qualified class name of the DayOfWeek enum.
      *
@@ -40,15 +37,5 @@ class DayOfWeekEnumType extends EnumType
     public static function getEnumsClass(): string
     {
         return DayOfWeek::class;
-    }
-
-    /**
-     * Returns the type name for Doctrine registration.
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return self::NAME;
     }
 }

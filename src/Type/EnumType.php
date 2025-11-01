@@ -6,6 +6,7 @@ use BackedEnum;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use LogicException;
+use ReflectionClass;
 
 /**
  * Abstract base class for Doctrine ENUM types.
@@ -58,4 +59,39 @@ abstract class EnumType extends Type
      * @return string The FQCN of the enum class
      */
     abstract public static function getEnumsClass(): string;
+
+    /**
+     * Automatically generates the type name from the class name in snake_case.
+     * This is a static method that can be used in attributes.
+     *
+     * Example: DayOfWeekEnumType::getTypeName() -> 'day_of_week'
+     *
+     * Usage in entity:
+     * #[ORM\Column(type: DayOfWeekEnumType::getTypeName())]
+     *
+     * @return string The type name in snake_case
+     */
+    public static function getTypeName(): string
+    {
+        // Get the short class name (without namespace) using late static binding
+        $className = (new ReflectionClass(static::class))->getShortName();
+
+        // Remove "EnumType" or "Type" suffix if present
+        $className = preg_replace('/EnumType$/', '', $className);
+        $className = preg_replace('/Type$/', '', $className);
+
+        // Convert to snake_case
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $className));
+    }
+
+    /**
+     * Returns the type name for Doctrine registration.
+     * Uses the static getTypeName() method.
+     *
+     * @return string The type name in snake_case
+     */
+    public function getName(): string
+    {
+        return static::getTypeName();
+    }
 }
